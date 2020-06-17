@@ -5,6 +5,7 @@ By initializing this library as code in a C# Azure IoT Edge Module there are syn
 Unlike Microsoft Clustering Server, this library does not require dedicated hardware (network or storage), matching hardware, matching operating systems or dedicated networks.
 ## Simple to Use: ##
 After including the library and creating a single IoTEdgeModuelHA object, simply call the ActiveAsync() or the Active() method to determine state and preform workload.  The following example is a simplified code sample with just 3 lines added to the default template:
+```
 namespace hamodule
 {
     using System;
@@ -15,42 +16,34 @@ namespace hamodule
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
     using IoTEdgeModuleHA;
-
     class Program
     {
         static int counter;
         static IoTEdgeModuleHA IoTEdgeModuleHA;
-
         static void Main(string[] args)
         {
             Init().Wait();
-
             // Wait until the app unloads or is cancelled
             var cts = new CancellationTokenSource();
             AssemblyLoadContext.Default.Unloading += (ctx) => cts.Cancel();
             Console.CancelKeyPress += (sender, cpe) => cts.Cancel();
             WhenCancelled(cts.Token).Wait();
         }
-
         public static Task WhenCancelled(CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<bool>();
             cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), tcs);
             return tcs.Task;
         }
-
         static async Task Init()
         {
             MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
             ITransportSettings[] settings = { mqttSetting };
-
             // Open a connection to the Edge runtime
             ModuleClient ioTHubModuleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub module client initialized.");
-
             IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient);
-            
             while (true){
                 System.Threading.Thread.Sleep(1000);
                 await IoTEdgeModuleHA.ActiveAsync();
@@ -58,7 +51,7 @@ namespace hamodule
                 await ioTHubModuleClient.SendEventAsync("output1", myiotMessage);
             }
         }
-
+```
 ## Deployment: ##
 1.	Copy the “IoTEdgeHA.dll” file to your project.
 2.	Add the following to your “.csproj” file:
@@ -66,8 +59,7 @@ namespace hamodule
     <Reference Include="IoTEdgeModuleHA">
       <HintPath>IoTEdgeHA.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
+    </ItemGroup>
 3.	Add a “using IoTEdgeModuleHA;” to your “.cs” file
 4.	After the “ioTHubModuleClient.OpenAsync()” line add “IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:2000, broadcastSubnet="192.168.15.0");” to your “.cs” file
 5.	In your normal loop in IoT Edge, add “await IoTEdgeModuleHA.ActiveAsync();” which will pause if not Active
