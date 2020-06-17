@@ -121,7 +121,7 @@ The following reported TWINs show the state of the IoTEdgeModuleHA.  In addition
                 "lastElection": "2020-06-17T19:07:27.1922825Z",
                 "peers": "node2|True|1592419489|06/17/2020 20:11:25;node1|False|1592424685|06/17/2020 20:11:26;",
                 "udpPort": 2000,
-                "broadcastSubnet": "192.168.15.",
+                "broadcastSubnet": "192.168.15.0",
                 "probeIntervalMS": 1000,
                 "failedProbeCount": 3
             }
