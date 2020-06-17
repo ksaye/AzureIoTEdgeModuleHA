@@ -67,7 +67,8 @@ namespace hamodule
     <Reference Include="IoTEdgeModuleHA">
       <HintPath>IoTEdgeHA.dll</HintPath>
     </Reference>
-    </ItemGroup>```
+    </ItemGroup>
+    ```
 3.	Add a “using IoTEdgeModuleHA;” to your “.cs” file
 4.	After the “ioTHubModuleClient.OpenAsync()” line add “IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:2000, broadcastSubnet="192.168.15.0");” to your “.cs” file
 5.	In your normal loop in IoT Edge, add “await IoTEdgeModuleHA.ActiveAsync();” which will pause if not Active
