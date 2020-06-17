@@ -48,7 +48,7 @@ namespace hamodule
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub module client initialized.");
             
-            IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient);
+            IoTEdgeModuleHA IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:20000);
             
             while (true){
                 System.Threading.Thread.Sleep(1000);
@@ -69,10 +69,10 @@ namespace hamodule
     </Reference>
     </ItemGroup>
     ```
-3.	Add a “using IoTEdgeModuleHA;” to your “.cs” file
-4.	After the “ioTHubModuleClient.OpenAsync()” line add “IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:2000, broadcastSubnet="192.168.15.0");” to your “.cs” file
-5.	In your normal loop in IoT Edge, add “await IoTEdgeModuleHA.ActiveAsync();” which will pause if not Active
-6.	In your deployment template or via the Azure Portal, add “"createOptions": "{\"ExposedPorts\":{\"2000/udp\":{}},\"HostConfig\":{\"PortBindings\":{\"2000/udp\":[{\"HostPort\":\"2000\"}]}}}"” to expose the UDP port 2000.
+3.	Add a “**using IoTEdgeModuleHA;**” to your “.cs” file
+4.	After the “ioTHubModuleClient.OpenAsync()” line add “**IoTEdgeModuleHA IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:2000, broadcastSubnet="192.168.15.0");**” to your “.cs” file
+5.	In your normal loop in IoT Edge, add “**await IoTEdgeModuleHA.ActiveAsync();**” which will pause if not Active
+6.	In your deployment template or via the Azure Portal, add **"createOptions": "{\"ExposedPorts\":{\"2000/udp\":{}},\"HostConfig\":{\"PortBindings\":{\"2000/udp\":[{\"HostPort\":\"2000\"}]}}}"** to expose the UDP port 2000.
 ## Configuration: ##
 The IoTEdgeModuleHA object requires a ModuleClient (or DeviceClient) for initialization and can optionally be passed the following parameters to fine tune the CPU usage and recover time.  These parameters can either be provided when creating the IoTEdgeModuleHA object or passed as a desired property in the module TWIN.
 |Parameter|Type (Default)|Notes
