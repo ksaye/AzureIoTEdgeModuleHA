@@ -16,10 +16,12 @@ namespace hamodule
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
     using IoTEdgeModuleHA;
+    
     class Program
     {
         static int counter;
         static IoTEdgeModuleHA IoTEdgeModuleHA;
+        
         static void Main(string[] args)
         {
             Init().Wait();
@@ -29,12 +31,14 @@ namespace hamodule
             Console.CancelKeyPress += (sender, cpe) => cts.Cancel();
             WhenCancelled(cts.Token).Wait();
         }
+        
         public static Task WhenCancelled(CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<bool>();
             cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), tcs);
             return tcs.Task;
         }
+        
         static async Task Init()
         {
             MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
@@ -43,10 +47,14 @@ namespace hamodule
             ModuleClient ioTHubModuleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub module client initialized.");
+            
             IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient);
+            
             while (true){
                 System.Threading.Thread.Sleep(1000);
+                
                 await IoTEdgeModuleHA.ActiveAsync();
+                
                 Message myiotMessage = new Message(System.Text.Encoding.UTF8.GetBytes("{\"message\":\"hello\"}"));
                 await ioTHubModuleClient.SendEventAsync("output1", myiotMessage);
             }
@@ -66,14 +74,16 @@ namespace hamodule
 6.	In your deployment template or via the Azure Portal, add “"createOptions": "{\"ExposedPorts\":{\"2000/udp\":{}},\"HostConfig\":{\"PortBindings\":{\"2000/udp\":[{\"HostPort\":\"2000\"}]}}}"” to expose the UDP port 2000.
 ## Configuration: ##
 The IoTEdgeModuleHA object requires a ModuleClient (or DeviceClient) for initialization and can optionally be passed the following parameters to fine tune the CPU usage and recover time.  These parameters can either be provided when creating the IoTEdgeModuleHA object or passed as a desired property in the module TWIN.
-Parameter	Type (Default)	Notes
-udpPort	Integer (60000)	This is the UDP port that the EdgeModuleHA sends and receives messages.  NOTE: the IoT Edge Module, via a creationOption, needs to be configured where the host listens on this port on behalf of the module.
-broadcastSubnet	String (“192.168.15.0”)	Because the IoT Edge Module runs in a container on a different network, EdgeModuleHA needs to know the external network that other IoT Edge systems are running on.  This network is assumed to be a 24 bit network.
-probeIntervalMS	Integer (200)	How often in milliseconds UDP packets are sent on the network.
-failedProbeCount	Integer (3)	The total number of missed probes at the probeIntervalMS duration until the Active host is considered down and an election is forced.
+|Parameter|Type (Default)|Notes
+|--|--|--|
+|udpPort|Integer (60000)|This is the UDP port that the EdgeModuleHA sends and receives messages.  NOTE: the IoT Edge Module, via a creationOption, needs to be configured where the host listens on this port on behalf of the module.|
+|broadcastSubnet|String (“192.168.15.0”)|Because the IoT Edge Module runs in a container on a different network, EdgeModuleHA needs to know the external network that other IoT Edge systems are running on.  This network is assumed to be a 24 bit network.|
+|probeIntervalMS|Integer (200)|How often in milliseconds UDP packets are sent on the network.
+|failedProbeCount|Integer (3)|The total number of missed probes at the probeIntervalMS duration until the Active host is considered down and an election is forced.|
 
 ## Desired TWINs: ##
 Using the desired TWIN of the IoT Edge Module, the same parameter can be passed as shown below:
+```
 {
     "properties": {
         "desired": {
@@ -89,15 +99,16 @@ Using the desired TWIN of the IoT Edge Module, the same parameter can be passed 
     },
     "tags": {}
 }
-
+```
 ## Reported TWINs: ##
 The following reported TWINs show the state of the IoTEdgeModuleHA.  In addition to the desired properties there are 4 additional properties:
-Property	Value	Notes
-isActive	true or false	Indicates if this IoTEdgeModuleHA is in active state
-bootTimeEPOCH	Integer EPOCH	When the module started, used in election criteria
-lastElection	Date	When the last election happened
-Peers	Delimeted string	Shows all the peers by: IoTEdgeGatewayId | isActive | bootTimeEPOCH | lastSeen
-
+|Property|Value|Notes|
+|--|--|--|
+|isActive|true or false|Indicates if this IoTEdgeModuleHA is in active state|
+|bootTimeEPOCH|Integer EPOCH|When the module started, used in election criteria|
+|lastElection|Date|When the last election happened|
+|Peers|Delimeted string|Shows all the peers by: IoTEdgeGatewayId \| isActive \| bootTimeEPOCH \| lastSeen|
+```
 {
     "properties": {
         "desired": {
@@ -117,9 +128,10 @@ Peers	Delimeted string	Shows all the peers by: IoTEdgeGatewayId | isActive | boo
     },
     "tags": {}
 }
-
+```
 ## Exposing UDP Ports: ##
 Adding the following createOptions will expose the UDP port when deploying:
+```
 "modules": {
           "hamodule": {
             "version": "1.0",
@@ -132,7 +144,7 @@ Adding the following createOptions will expose the UDP port when deploying:
             }
           }
         }
-
+```
 ## Failover Logic: ##
 When a node fails to receive probes from the active host in failedProbeCount duration, it assumes the role of isActive and if other nodes are online will go into election mode.
 ## Election Logic: ##
