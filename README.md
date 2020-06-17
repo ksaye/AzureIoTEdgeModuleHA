@@ -61,7 +61,7 @@ namespace hamodule
         }
 ```
 ## Deployment: ##
-1.	Copy the “IoTEdgeHA.dll” file to your project.
+1.	Copy the [IoTEdgeHA.dll](https://github.com/ksaye/AzureIoTEdgeModuleHA/raw/master/csharp/IoTEdgeHA/IoTEdgeHA/bin/Release/netcoreapp3.1/IoTEdgeHA.dll)  file to your project.
 2.	Add the following to your “.csproj” file:
     <ItemGroup>
     <Reference Include="IoTEdgeModuleHA">
