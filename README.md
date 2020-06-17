@@ -63,11 +63,11 @@ namespace hamodule
 ## Deployment: ##
 1.	Copy the [IoTEdgeHA.dll](https://github.com/ksaye/AzureIoTEdgeModuleHA/raw/master/csharp/IoTEdgeHA/IoTEdgeHA/bin/Release/netcoreapp3.1/IoTEdgeHA.dll)  file to your project.
 2.	Add the following to your “.csproj” file:
-    <ItemGroup>
+    ```<ItemGroup>
     <Reference Include="IoTEdgeModuleHA">
       <HintPath>IoTEdgeHA.dll</HintPath>
     </Reference>
-    </ItemGroup>
+    </ItemGroup>```
 3.	Add a “using IoTEdgeModuleHA;” to your “.cs” file
 4.	After the “ioTHubModuleClient.OpenAsync()” line add “IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:2000, broadcastSubnet="192.168.15.0");” to your “.cs” file
 5.	In your normal loop in IoT Edge, add “await IoTEdgeModuleHA.ActiveAsync();” which will pause if not Active
