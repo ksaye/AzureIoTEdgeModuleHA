@@ -153,6 +153,6 @@ When one or more node claim to be “Active” and election is forced.  This ele
 Configuring the failedProbeCount too low can cause failovers to happen under CPU load.  Testing and tuning should be considered based on need.
 ## Failover Test Results: ##
 Shown below, either stopping or having a failure of a host or module can force an election in less than a second.
- 
+ ![testresults](https://github.com/ksaye/AzureIoTEdgeModuleHA/blob/master/images/one.png)
 ## Source Code: ##
 This project contains all source code.
