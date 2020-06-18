@@ -4,62 +4,8 @@ This library enables two or more Azure IoT Edge Modules to communicate across th
 By initializing this library as code in a C# Azure IoT Edge Module there are synchronous and asynchronous methods to determine the Active state which should perform work.  With configurable millisecond ‘heartbeat’ messages and retry, this library can be configured at the sub second level.
 Unlike Microsoft Clustering Server, this library does not require dedicated hardware (network or storage), matching hardware, matching operating systems or dedicated networks.
 ## Simple to Use: ##
-After including the library and creating a single IoTEdgeModuelHA object, simply call the ActiveAsync() or the Active() method to determine state and preform workload.  The following example is a simplified code sample with just 3 lines added to the default template:
-```
-namespace hamodule
-{
-    using System;
-    using System.Runtime.Loader;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Azure.Devices.Client;
-    using Microsoft.Azure.Devices.Client.Transport.Mqtt;
-    using IoTEdgeModuleHA;
-    
-    class Program
-    {
-        static int counter;
-        static IoTEdgeModuleHA IoTEdgeModuleHA;
-        
-        static void Main(string[] args)
-        {
-            Init().Wait();
-            // Wait until the app unloads or is cancelled
-            var cts = new CancellationTokenSource();
-            AssemblyLoadContext.Default.Unloading += (ctx) => cts.Cancel();
-            Console.CancelKeyPress += (sender, cpe) => cts.Cancel();
-            WhenCancelled(cts.Token).Wait();
-        }
-        
-        public static Task WhenCancelled(CancellationToken cancellationToken)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            cancellationToken.Register(s => ((TaskCompletionSource<bool>)s).SetResult(true), tcs);
-            return tcs.Task;
-        }
-        
-        static async Task Init()
-        {
-            MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
-            ITransportSettings[] settings = { mqttSetting };
-            // Open a connection to the Edge runtime
-            ModuleClient ioTHubModuleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
-            await ioTHubModuleClient.OpenAsync();
-            Console.WriteLine("IoT Hub module client initialized.");
-            
-            IoTEdgeModuleHA IoTEdgeModuleHA = new IoTEdgeModuleHA(ioTHubModuleClient, udpPort:20000);
-            
-            while (true){
-                System.Threading.Thread.Sleep(1000);
-                
-                await IoTEdgeModuleHA.ActiveAsync();
-                
-                Message myiotMessage = new Message(System.Text.Encoding.UTF8.GetBytes("{\"message\":\"hello\"}"));
-                await ioTHubModuleClient.SendEventAsync("output1", myiotMessage);
-            }
-        }
-```
+After including the library and creating a single IoTEdgeModuelHA object, simply call the ActiveAsync() or the Active() method to determine state and preform workload.  The following example is a simplified code sample with just 3 lines (13, 55 and 60) added to the default template:
+![simpletouse](https://github.com/ksaye/AzureIoTEdgeModuleHA/blob/master/images/simple.png)
 ## Deployment: ##
 1.	Copy the [IoTEdgeHA.dll](https://github.com/ksaye/AzureIoTEdgeModuleHA/raw/master/csharp/IoTEdgeHA/IoTEdgeHA/bin/Release/netcoreapp3.1/IoTEdgeHA.dll)  file to your project.
 2.	Add the following to your “.csproj” file:
